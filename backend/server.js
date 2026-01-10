@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql2/promise");
 const crypto = require("crypto");
+const axios = require("axios");
 
 const app = express();
 app.use(cors());
@@ -133,13 +134,11 @@ app.post("/api/generate-key", verifyToken, async (req, res) => {
   }
 });
 
-// 5. CEK TRAVEL (Bagian yang diubah!)
 app.post("/api/check-travel", async (req, res) => {
   const clientKey = req.headers["x-api-key"] || req.body.apiKey;
   const { destination, currency } = req.body;
 
   try {
-    // 1. Cek Validitas Key
     const [rows] = await db.query(
       "SELECT * FROM api_keys WHERE key_string = ? AND is_active = 1",
       [clientKey]
@@ -156,52 +155,74 @@ app.post("/api/check-travel", async (req, res) => {
 
     const keyData = rows[0];
 
-    // 2. Update Hits
+    // 2. Update Hits (+1)
     await db.query("UPDATE api_keys SET hits = hits + 1 WHERE id = ?", [
       keyData.id,
     ]);
 
-    // 3. Logika Gacha
+    // 3. AMBIL DATA REAL DARI WEATHER API
+    let weatherResult = "Unknown";
+    try {
+      const weatherUrl = `http://api.weatherapi.com/v1/current.json?key=${process.env.WEATHER_API_KEY}&q=${destination}&aqi=no`;
+      const response = await axios.get(weatherUrl);
+
+      const current = response.data.current;
+      const loc = response.data.location;
+
+      weatherResult = `${current.temp_c}°C (${current.condition.text}) in ${loc.name}, ${loc.country}`;
+    } catch (apiError) {
+      console.error("WeatherAPI Error:", apiError.message);
+      // Fallback ke dummy kalau API error / kuota habis / kota ga ketemu
+      const randomTemp = Math.floor(Math.random() * 30) + 10;
+      weatherResult = `${randomTemp}°C (Unknown - API Error)`;
+    }
+
+    // 4. Logika Gacha
     const isWorthIt = Math.random() > 0.5;
     const decision = isWorthIt
       ? `PACK YOUR BAGS TO ${destination?.toUpperCase()}! ✈️`
       : `STAY HOME, ${destination?.toUpperCase()} IS PRICEY! 🏠`;
 
-    const weathers = [
-      "Sunny ☀️",
-      "Rainy 🌧️",
-      "Cloudy ☁️",
-      "Snowy ❄️",
-      "Windy 🍃",
-    ];
-    const randomWeather = weathers[Math.floor(Math.random() * weathers.length)];
-    const randomTemp = Math.floor(Math.random() * 30) + 10; // Suhu 10-40 derajat
+    let rateText = "Loading...";
 
-    let rateText = "";
-    switch (currency) {
-      case "USD":
-        rateText = "1 USD = Rp 15.650";
-        break;
-      case "JPY":
-        rateText = "1 JPY = Rp 104";
-        break;
-      case "EUR":
-        rateText = "1 EUR = Rp 16.800";
-        break;
-      case "IDR":
-        rateText = "1 IDR = 1 IDR (Lokal)";
-        break;
-      default:
-        rateText = "Rate tidak tersedia";
+    if (currency === "IDR") {
+      rateText = "1 IDR = Rp 1 (Lokal)";
+    } else {
+      try {
+        const rateUrl = `https://api.frankfurter.app/latest?from=${currency}&to=IDR`;
+        const rateRes = await axios.get(rateUrl);
+        const rateValue = rateRes.data.rates.IDR;
+
+        const formattedRate = rateValue.toLocaleString("id-ID");
+        rateText = `1 ${currency} = Rp ${formattedRate}`;
+      } catch (rateError) {
+        console.error("Rate API Error:", rateError.message);
+
+        switch (currency) {
+          case "USD":
+            rateText = "1 USD = Rp 15.500 (Est)";
+            break;
+          case "JPY":
+            rateText = "1 JPY = Rp 105 (Est)";
+            break;
+          case "EUR":
+            rateText = "1 EUR = Rp 16.800 (Est)";
+            break;
+          default:
+            rateText = "Rate Error";
+        }
+      }
     }
 
+    // Kirim Hasil
     res.json({
       decision,
-      weather: `${randomTemp}°C (${randomWeather})`,
+      weather: weatherResult,
       rate: rateText,
       user_hits: keyData.hits + 1,
     });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Server Error" });
   }
 });
