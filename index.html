@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Biblio-Matic: Citation Generator</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background-color: #f4f6f8;
+        color: #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        width: 100%;
+        text-align: center;
+      }
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 5px;
+      }
+      p {
+        color: #7f8c8d;
+        margin-bottom: 30px;
+      }
+
+      input,
+      button {
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+      }
+      input {
+        width: 60%;
+        margin-right: 5px;
+      }
+      button {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      button:hover {
+        background-color: #2980b9;
+      }
+
+      .result-box {
+        display: none;
+        margin-top: 30px;
+        text-align: left;
+        border-top: 2px solid #eee;
+        padding-top: 20px;
+      }
+      .book-layout {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+      }
+      .book-cover {
+        width: 100px;
+        border-radius: 4px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .citation-card {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+        position: relative;
+      }
+      .citation-label {
+        font-size: 12px;
+        font-weight: bold;
+        color: #95a5a6;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+        display: block;
+      }
+      .citation-text {
+        font-family: "Times New Roman", serif;
+        font-size: 1.1em;
+        line-height: 1.4;
+      }
+      .copy-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #ecf0f1;
+        color: #333;
+        font-size: 12px;
+        padding: 5px 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎓 Biblio-Matic</h1>
+      <p>Generator Daftar Pustaka Otomatis (APA & MLA).</p>
+
+      <div style="margin-bottom: 15px">
+        <input
+          type="text"
+          id="api-key"
+          placeholder="API Key"
+          value="USER-123"
+          style="width: 20%"
+        />
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Ketik Judul Buku (Misal: Laskar Pelangi)"
+        />
+        <button id="btn-search">Cari</button>
+      </div>
+
+      <div id="loading" style="display: none; color: #3498db">
+        Sedang mencari di perpustakaan... 📚
+      </div>
+
+      <div id="result-area" class="result-box">
+        <div class="book-layout">
+          <img id="book-img" class="book-cover" src="" alt="Cover" />
+
+          <div style="width: 100%">
+            <h2 id="book-title" style="margin: 0 0 5px 0; font-size: 1.2em">
+              Judul Buku
+            </h2>
+            <div id="book-author" style="color: #7f8c8d; font-style: italic">
+              Penulis
+            </div>
+            <div
+              id="book-desc"
+              style="font-size: 0.9em; margin-top: 5px; color: #555"
+            ></div>
+          </div>
+        </div>
+
+        <div class="citation-card">
+          <span class="citation-label"
+            >Format APA (American Psychological Association)</span
+          >
+          <div id="result-apa" class="citation-text"></div>
+          <button class="copy-btn" onclick="copyText('result-apa')">
+            COPY
+          </button>
+        </div>
+
+        <div class="citation-card">
+          <span class="citation-label"
+            >Format MLA (Modern Language Association)</span
+          >
+          <div id="result-mla" class="citation-text"></div>
+          <button class="copy-btn" onclick="copyText('result-mla')">
+            COPY
+          </button>
+        </div>
+
+        <p style="text-align: center; font-size: 0.8em; margin-top: 20px">
+          Usage Stats: <span id="stats">-</span>
+        </p>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#btn-search").click(function () {
+          const query = $("#search-input").val();
+          const apiKey = $("#api-key").val();
+
+          if (!query) return alert("Judul buku kosong!");
+
+          $("#result-area").hide();
+          $("#loading").show();
+
+          $.ajax({
+            url: `http://localhost:3000/api/nasa-birthday`,
+            data: { date: query, apiKey: apiKey },
+            success: function (res) {
+              $("#loading").hide();
+              const data = res.data;
+              const citations = JSON.parse(data.explanation); // Parsing data JSON formatted string
+
+              $("#book-title").text(data.title);
+              $("#book-author").text("Oleh: " + data.date);
+              $("#book-img").attr("src", data.url);
+              $("#book-desc").text(citations.desc);
+
+              // Render HTML untuk format Miring/Bold
+              // Kita replace *text* jadi <i>text</i> biar sesuai format akademik
+              const formatRichText = (text) =>
+                text.replace(/\*(.*?)\*/g, "<i>$1</i>");
+
+              $("#result-apa").html(formatRichText(citations.apa));
+              $("#result-mla").html(formatRichText(citations.mla));
+
+              $("#stats").text(
+                `User: ${res.usage_info.user} | Total Hits: ${res.usage_info.total_requests}`
+              );
+              $("#result-area").fadeIn();
+            },
+            error: function () {
+              $("#loading").hide();
+              alert(
+                "Buku tidak ditemukan. Coba judul lain yang lebih spesifik."
+              );
+            },
+          });
+        });
+      });
+
+      // Fungsi Copy to Clipboard
+      function copyText(elementId) {
+        const text = document.getElementById(elementId).innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          alert("Kutipan berhasil disalin! Tinggal paste di Word.");
+        });
+      }
+    </script>
+  </body>
+</html>
