@@ -1,0 +1,40 @@
+@startuml
+skinparam componentStyle uml2
+
+package "Presentation Tier (Frontend)" {
+    [React.js App] as Client
+    note right of Client
+        - Login/Register UI
+        - Dashboard & Key Mgmt
+        - API Explorer
+    end note
+}
+
+package "Application Tier (Backend)" {
+    [Node.js + Express] as Server
+    
+    component "Middleware" {
+        [JWT Auth]
+        [API Key Check]
+    }
+    
+    component "Business Logic" {
+        [Sniper Logic (Gacha)]
+        [Key Generator]
+    }
+    
+    Server ..> [JWT Auth]
+    Server ..> [Sniper Logic (Gacha)]
+}
+
+package "Data Tier (Database)" {
+    database "MySQL" {
+        [Users Table]
+        [API Keys Table]
+    }
+}
+
+Client <--> Server : JSON / HTTP REST
+Server <--> MySQL : SQL Queries
+
+@enduml

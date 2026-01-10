@@ -1,0 +1,26 @@
+@startuml
+hide circle
+skinparam linetype ortho
+
+entity "users" as users {
+  *id : INT <<PK>>
+  --
+  username : VARCHAR(255)
+  email : VARCHAR(255)
+  password_hash : VARCHAR(255)
+  role : ENUM('user', 'admin')
+  created_at : TIMESTAMP
+}
+
+entity "api_keys" as keys {
+  *id : INT <<PK>>
+  --
+  user_id : INT <<FK>>
+  key_string : VARCHAR(255)
+  hits : INT
+  is_active : TINYINT(1)
+  created_at : TIMESTAMP
+}
+
+users ||..|{ keys : "has many"
+@enduml

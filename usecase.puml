@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+actor "User (Traveler)" as User
+actor "Admin" as Admin
+
+rectangle "TravelSniper App" {
+  usecase "Register & Login" as UC1
+  usecase "View Dashboard" as UC2
+  usecase "Generate New API Key" as UC3
+  usecase "Copy API Key" as UC4
+  usecase "Use Travel Sniper (Check Travel)" as UC5
+  usecase "Access API Explorer" as UC6
+  usecase "View All User Stats" as UC7
+  usecase "Manage Users (Future)" as UC8
+}
+
+User --> UC1
+User --> UC2
+User --> UC5
+User --> UC6
+
+UC2 ..> UC3 : <<include>>
+UC2 ..> UC4 : <<include>>
+
+Admin -|> User : inherits
+Admin --> UC7
+Admin --> UC8
+@enduml

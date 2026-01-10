@@ -1,0 +1,38 @@
+@startuml
+start
+:User/Client mengirim request POST
+ke /api/check-travel;
+
+:Backend menerima Request;
+
+if (Apakah ada x-api-key di Header?) then (Tidak)
+    :Return 403 Forbidden
+    (Message: API Key Missing);
+    stop
+else (Ya)
+    :Cek API Key di Database;
+endif
+
+if (Apakah Key Valid & Aktif?) then (Tidak)
+    :Return 403 Forbidden
+    (Message: Invalid Key);
+    stop
+else (Ya)
+    :Update Hits Counter (+1)
+    di Database;
+    
+    :Jalankan Algoritma Gacha
+    (Random Decision);
+    
+    if (Random > 0.5) then (Yes)
+        :Decision: PACK YOUR BAGS!;
+    else (No)
+        :Decision: STAY HOME!;
+    endif
+    
+    :Generate Data Cuaca & Kurs;
+    :Kirim Response JSON (200 OK);
+endif
+
+stop
+@enduml

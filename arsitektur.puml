@@ -1,0 +1,29 @@
+@startuml
+skinparam componentStyle uml2
+
+package "Client Side (Frontend)" {
+    [React App (Vite)] as Frontend
+    [API Explorer UI] as Explorer
+}
+
+package "Server Side (Backend)" {
+    [Node.js Express Server] as Server
+    [Auth Middleware] as Auth
+    [API Key Validator] as KeyCheck
+    [Sniper Logic Engine] as Logic
+}
+
+database "Data Storage" {
+    [MySQL Database] as DB
+}
+
+Frontend --> Server : HTTP Request (JSON)
+Explorer --> Server : Test Endpoints
+
+Server --> Auth : Login/Register
+Server --> KeyCheck : /api/check-travel
+KeyCheck --> Logic : If Key Valid
+Logic --> DB : Update Hits Count
+Auth --> DB : Verify Credentials
+
+@enduml
