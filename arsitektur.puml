@@ -3,27 +3,29 @@ skinparam componentStyle uml2
 
 package "Client Side (Frontend)" {
     [React App (Vite)] as Frontend
-    [API Explorer UI] as Explorer
 }
 
 package "Server Side (Backend)" {
     [Node.js Express Server] as Server
-    [Auth Middleware] as Auth
-    [API Key Validator] as KeyCheck
-    [Sniper Logic Engine] as Logic
+    [Sniper Logic] as Logic
 }
 
-database "Data Storage" {
+database "Internal Data" {
     [MySQL Database] as DB
 }
 
-Frontend --> Server : HTTP Request (JSON)
-Explorer --> Server : Test Endpoints
+cloud "External Services (3rd Party)" {
+    [WeatherAPI.com] as Weather
+    [Frankfurter API] as Rates
+}
 
-Server --> Auth : Login/Register
-Server --> KeyCheck : /api/check-travel
-KeyCheck --> Logic : If Key Valid
-Logic --> DB : Update Hits Count
-Auth --> DB : Verify Credentials
+' Relasi
+Frontend <--> Server : JSON / HTTP REST
+Server <--> DB : Read/Write User & Keys
+Server --> Logic : Process Request
+
+' Ini yang BARU: Server nembak ke Luar
+Logic <--> Weather : Fetch Real-time Weather
+Logic <--> Rates : Fetch Real-time Currency
 
 @enduml

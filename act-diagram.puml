@@ -1,37 +1,19 @@
 @startuml
-title 3.1 Check Travel Flowchart
-skinparam linetype ortho
-
-' --- STYLE FLOWCHART ---
-skinparam activity {
-    BackgroundColor white
-    BorderColor black
-    ArrowColor black
-    FontName Arial
-    FontSize 12
-}
-
-' Ubah bentuk jadi Kotak Tajam (bukan Kapsul)
-skinparam activityShape rectangle
-
-' Ubah style Diamond (Decision)
-skinparam conditionStyle diamond
+title 3.1 Check Travel Flow (Real-Time Integration)
 
 |User/Client|
 start
-:Input Destinasi & Currency;
+:Input Destinasi (ex: Tokyo) & Currency (ex: JPY);
 :Kirim Request POST (+ API Key);
 
 |Backend Server|
 :Validasi API Key di DB;
-
 if (Key Valid?) then (No)
     :Return 403 Forbidden;
     stop
 else (Yes)
     :Update Hits Counter (+1);
     
-    ' Pecah proses (Parallel Processing)
     fork
         :Request ke WeatherAPI;
         :Get Suhu & Kondisi Langit;
@@ -48,5 +30,4 @@ endif
 |User/Client|
 :Tampilkan Hasil Real-time;
 stop
-
 @enduml

@@ -1,6 +1,7 @@
 @startuml
 skinparam componentStyle uml2
 
+' --- 1. PRESENTATION TIER ---
 package "Presentation Tier (Frontend)" {
     [React.js App] as Client
     note right of Client
@@ -10,6 +11,7 @@ package "Presentation Tier (Frontend)" {
     end note
 }
 
+' --- 2. APPLICATION TIER ---
 package "Application Tier (Backend)" {
     [Node.js + Express] as Server
     
@@ -20,13 +22,14 @@ package "Application Tier (Backend)" {
     
     component "Business Logic" {
         [Sniper Logic (Gacha)]
-        [Key Generator]
+        [External API Integrator] 
     }
     
     Server ..> [JWT Auth]
     Server ..> [Sniper Logic (Gacha)]
 }
 
+' --- 3. DATA TIER ---
 package "Data Tier (Database)" {
     database "MySQL" {
         [Users Table]
@@ -34,7 +37,18 @@ package "Data Tier (Database)" {
     }
 }
 
+' --- 4. EXTERNAL TIER (INI YANG BARU) ---
+cloud "External Services (Internet)" {
+    [WeatherAPI.com] as Weather
+    [Frankfurter API] as Rates
+}
+
+' RELASI
 Client <--> Server : JSON / HTTP REST
 Server <--> MySQL : SQL Queries
+
+' Relasi ke Luar (PENTING)
+[External API Integrator] --> Weather : Fetch Data Cuaca
+[External API Integrator] --> Rates : Fetch Data Kurs
 
 @enduml

@@ -1,28 +1,41 @@
 @startuml
-left to right direction
-actor "User (Traveler)" as User
-actor "Admin" as Admin
+skinparam componentStyle uml2
 
-rectangle "TravelSniper App" {
-  usecase "Register & Login" as UC1
-  usecase "View Dashboard" as UC2
-  usecase "Generate New API Key" as UC3
-  usecase "Copy API Key" as UC4
-  usecase "Use Travel Sniper (Check Travel)" as UC5
-  usecase "Access API Explorer" as UC6
-  usecase "View All User Stats" as UC7
-  
+' --- 1. PRESENTATION TIER ---
+package "1. Presentation Tier (Frontend)" {
+    [React App (Browser)] as Client
+    note bottom of Client
+        User Interface
+        (Input Kota, Dashboard)
+    end note
 }
 
-User --> UC1
-User --> UC2
-User --> UC5
-User --> UC6
+' --- 2. LOGIC TIER ---
+package "2. Logic Tier (Backend)" {
+    [Express Server] as Server
+    [Sniper Engine] as Engine
+    [Auth Middleware] as Auth
+    
+    Server --> Auth : Cek Token/Key
+    Server --> Engine : Process Data
+}
 
-UC2 ..> UC3 : <<include>>
-UC2 ..> UC4 : <<include>>
+' --- 3. DATA TIER ---
+package "3. Data Tier (Database)" {
+    database "MySQL" as DB
+}
 
-Admin -|> User : inherits
-Admin --> UC7
+' --- EKSTERNAL (Bukan Tier Utama, tapi pendukung) ---
+cloud "External APIs" {
+    [WeatherAPI (Cuaca)] as Weather
+    [Frankfurter (Kurs)] as Rates
+}
+
+' RELASI ANTAR TIER
+Client <--> Server : HTTP / REST API
+Auth <--> DB : Read User/Key
+Engine <--> Weather : Axios Get
+Engine <--> Rates : Axios Get
+Engine --> DB : Update Hits (+1)
 
 @enduml

@@ -162,6 +162,93 @@ const Dashboard = () => {
       <div
         style={{
           marginTop: "30px",
+          background: "#f8f9fa",
+          padding: "20px",
+          borderRadius: "15px",
+          border: "1px solid #eee",
+        }}
+      >
+        <h3
+          style={{
+            fontSize: "1.2rem",
+            fontWeight: "bold",
+            color: "#2d3436",
+            marginBottom: "15px",
+            textAlign: "center",
+          }}
+        >
+          🚀 Cara Menggunakan TravelSniper
+        </h3>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: "15px",
+            textAlign: "center",
+          }}
+        >
+          {/* Langkah 1 */}
+          <div
+            style={{
+              padding: "15px",
+              background: "#e3f2fd",
+              borderRadius: "10px",
+            }}
+          >
+            <div style={{ fontSize: "1.5rem", marginBottom: "5px" }}>🔑</div>
+            <h4
+              style={{ fontWeight: "bold", color: "#0984e3", margin: "5px 0" }}
+            >
+              1. Ambil Key
+            </h4>
+            <p style={{ fontSize: "0.85rem", color: "#636e72" }}>
+              Klik tombol <b>"Generate New Key"</b> di atas.
+            </p>
+          </div>
+
+          {/* Langkah 2 */}
+          <div
+            style={{
+              padding: "15px",
+              background: "#e3f2fd",
+              borderRadius: "10px",
+            }}
+          >
+            <div style={{ fontSize: "1.5rem", marginBottom: "5px" }}>📋</div>
+            <h4
+              style={{ fontWeight: "bold", color: "#0984e3", margin: "5px 0" }}
+            >
+              2. Copy Key
+            </h4>
+            <p style={{ fontSize: "0.85rem", color: "#636e72" }}>
+              Salin kode <code>TRAVEL-XXX</code> yang muncul.
+            </p>
+          </div>
+
+          {/* Langkah 3 */}
+          <div
+            style={{
+              padding: "15px",
+              background: "#e3f2fd",
+              borderRadius: "10px",
+            }}
+          >
+            <div style={{ fontSize: "1.5rem", marginBottom: "5px" }}>✈️</div>
+            <h4
+              style={{ fontWeight: "bold", color: "#0984e3", margin: "5px 0" }}
+            >
+              3. Cek Travel
+            </h4>
+            <p style={{ fontSize: "0.85rem", color: "#636e72" }}>
+              Buka menu <b>Cek Tiket</b>, paste Key kamu.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style={{
+          marginTop: "30px",
           display: "flex",
           flexDirection: "column",
           gap: "10px",
